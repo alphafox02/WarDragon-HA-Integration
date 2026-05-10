@@ -41,6 +41,7 @@ export interface Drone {
   description: string | null;
   rssi: number | null;
   protocolFamily: string | null;
+  droneClass: string | null;
   freqBand: string | null;
   freqMhz: number | null;
   online: boolean;

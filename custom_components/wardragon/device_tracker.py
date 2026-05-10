@@ -156,6 +156,7 @@ class WarDragonDroneDeviceTracker(WarDragonDroneEntity, TrackerEntity):
             "transport": d.transport,
             "protocol_family": d.protocol_family,
             "freq_band": d.freq_band,
+            "drone_class": d.drone_class,
             "ua_type_name": d.ua_type_name,
             "operator_id": d.operator_id,
             "caa_id": d.caa_id,

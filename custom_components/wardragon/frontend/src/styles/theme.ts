@@ -213,6 +213,61 @@ export const copTheme: CSSResult = css`
     text-align: center;
   }
 
+  /* ---- drone-class chips ---- */
+
+  .class-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--wd-divider);
+    background: var(--wd-bg-row-alt);
+  }
+  .class-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--wd-bg);
+    border: 1px solid var(--wd-divider);
+    color: var(--wd-text-muted);
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    border-radius: 999px;
+    cursor: pointer;
+    user-select: none;
+    font-family: inherit;
+    transition: background 0.1s, color 0.1s, border-color 0.1s;
+  }
+  .class-chip:hover {
+    color: var(--wd-text);
+  }
+  .class-chip[data-active="true"] {
+    background: var(--wd-accent-soft);
+    color: var(--wd-accent);
+    border-color: var(--wd-accent);
+  }
+  .class-chip-count {
+    font-family: var(--wd-mono);
+    font-size: 0.7rem;
+    background: var(--wd-bg-row);
+    padding: 0 6px;
+    border-radius: 999px;
+    color: var(--wd-text-muted);
+    border: 1px solid var(--wd-divider);
+  }
+  .class-chip[data-active="true"] .class-chip-count {
+    color: var(--wd-accent);
+    border-color: var(--wd-accent);
+  }
+  .class-chip[data-class="DJI"][data-active="true"]      { color: #ffb84d; border-color: #ffb84d; background: rgba(255, 184, 77, 0.12); }
+  .class-chip[data-class="DJI"][data-active="true"] .class-chip-count { color: #ffb84d; border-color: #ffb84d; }
+  .class-chip[data-class="Open RID"][data-active="true"] { color: #4dd0e1; border-color: #4dd0e1; background: rgba(77, 208, 225, 0.12); }
+  .class-chip[data-class="Open RID"][data-active="true"] .class-chip-count { color: #4dd0e1; border-color: #4dd0e1; }
+  .class-chip[data-class="FPV"][data-active="true"]      { color: #f06292; border-color: #f06292; background: rgba(240, 98, 146, 0.12); }
+  .class-chip[data-class="FPV"][data-active="true"] .class-chip-count { color: #f06292; border-color: #f06292; }
+  .class-chip[data-class="Other"][data-active="true"]    { color: var(--wd-text); border-color: var(--wd-text); background: var(--wd-bg-row); }
+  .class-chip[data-class="Other"][data-active="true"] .class-chip-count { color: var(--wd-text); border-color: var(--wd-text); }
+
   /* ---- drone roster ---- */
 
   .roster {
@@ -281,6 +336,9 @@ export const copTheme: CSSResult = css`
   .drone-meta .tag[data-band="5.2GHz"] { color: #4dd0e1; }
   .drone-meta .tag[data-band="5.8GHz"] { color: #b388ff; }
   .drone-meta .tag[data-band="900MHz"] { color: #aed581; }
+  .drone-meta .tag[data-class="DJI"]      { color: #ffb84d; }
+  .drone-meta .tag[data-class="Open RID"] { color: #4dd0e1; }
+  .drone-meta .tag[data-class="FPV"]      { color: #f06292; }
   .drone-meta .age {
     color: var(--wd-text-muted);
   }

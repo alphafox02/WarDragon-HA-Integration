@@ -315,23 +315,37 @@ class Drone:
 
     @property
     def protocol_family(self) -> str | None:
-        """DroneID protocol family parsed from description.
+        """DroneID protocol family parsed from description and transport.
 
-        Returns `O2`, `O3`, `O4`, `OcuSync`, `WiFi-Beacon`, `WiFi-NaN`,
-        `BT5-LR`, `ISM-FHSS`, or None when undeterminable. Inspects the
-        `transport` field first (authoritative for non-DJI), then the
-        `description` field for DJI O*/OcuSync markers.
+        Returns one of `O2`, `O3`, `O4`, `OcuSync`, `WiFi-Beacon`,
+        `WiFi-NAN`, `WiFi-DJI`, `BT5-LR`, `BT4-LE`, `ISM-FHSS`, `UART`, or
+        None when undeterminable. Inspects the `transport` field first
+        (authoritative for the link layer per droneid-go and
+        antsdr_dji_droneid), then the `description` field for DJI
+        OcuSync / O2/O3/O4 markers.
         """
         if self.transport:
             t = self.transport.upper()
+            if "WIFI-DJI" in t or "WIFI_DJI" in t:
+                return "WiFi-DJI"
             if "WIFI-BEACON" in t or "WIFI_BEACON" in t:
                 return "WiFi-Beacon"
             if "WIFI-NAN" in t or "WIFI_NAN" in t:
-                return "WiFi-NaN"
-            if "BT5" in t or "BLUETOOTH" in t:
+                return "WiFi-NAN"
+            if "BT5" in t:
+                return "BT5-LR"
+            if "BT4" in t or "BTLE" in t or "BT-LE" in t:
+                return "BT4-LE"
+            if "BLUETOOTH" in t:
                 return "BT5-LR"
             if "ISM-FHSS" in t or "ISM_FHSS" in t:
                 return "ISM-FHSS"
+            if t == "UART":
+                return "UART"
+            if t == "OCUSYNC":
+                return "OcuSync"
+            if t == "DJI":
+                return "OcuSync"  # DragonSync's generic "DJI" tag → OcuSync family
         if self.description:
             d = self.description.upper()
             if "(O4)" in d or " O4 " in d or d.endswith(" O4") or "DJI O4" in d:
@@ -343,6 +357,44 @@ class Drone:
             if "OCUSYNC" in d:
                 return "OcuSync"
         return None
+
+    @property
+    def drone_class(self) -> str | None:
+        """Operator-facing drone classification. One of:
+
+        - ``DJI``  — OcuSync, WiFi-DJI, or DJI O2/O3/O4
+        - ``Open RID`` — ASTM Remote ID broadcasters (WiFi-Beacon, WiFi-NAN,
+          BT5-LR, BT4-LE, UART)
+        - ``FPV`` — FPV / RF / racing-link signals (ISM-FHSS, fpv,
+          analog-video, digital-fhss)
+        - ``Other`` — transport known but doesn't match a category
+        - None — no transport / description info to classify on
+
+        Used by the WarDragon COP card to drive operator filter chips
+        (DJI / Open RID / FPV / Other) instead of forcing operators to
+        pick from the raw eight-way protocol-family enum.
+        """
+        pf = self.protocol_family
+        if pf in ("O2", "O3", "O4", "OcuSync", "WiFi-DJI"):
+            return "DJI"
+        if pf in ("WiFi-Beacon", "WiFi-NAN", "BT5-LR", "BT4-LE", "UART"):
+            return "Open RID"
+        if pf == "ISM-FHSS":
+            return "FPV"
+        # Fall back to transport-string keywords for FPV signal-detector outputs
+        # that bypassed the protocol_family parser. Vocabulary covers DragonSig
+        # (fpv / analog-video / digital-fhss / elrs / sik900) and signal_ingest
+        # fallbacks.
+        if self.transport:
+            t = self.transport.lower()
+            if t in ("fpv", "analog-video", "digital-fhss", "elrs", "sik", "sik900", "crossfire", "tbs"):
+                return "FPV"
+            if t == "":
+                return None
+            return "Other"
+        if pf is None:
+            return None
+        return "Other"
 
     @property
     def freq_band(self) -> str | None:

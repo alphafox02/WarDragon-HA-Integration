@@ -103,6 +103,57 @@ def test_drone_protocol_family_o3() -> None:
     assert drone.protocol_family == "O3"
 
 
+def test_drone_class_dji() -> None:
+    for transport in ("OcuSync", "WiFi-DJI"):
+        d = Drone.from_drone_payload({"id": "drone-A", "track_type": "drone", "transport": transport})
+        assert d is not None and d.drone_class == "DJI"
+    d = Drone.from_drone_payload({"id": "drone-A", "track_type": "drone", "description": "DJI O4 (Decrypted)"})
+    assert d is not None and d.drone_class == "DJI"
+
+
+def test_drone_class_open_rid() -> None:
+    for transport in ("WiFi-Beacon", "WiFi-NAN", "BT5-LR-Extended", "UART"):
+        d = Drone.from_drone_payload({"id": "drone-B", "track_type": "drone", "transport": transport})
+        assert d is not None
+        assert d.drone_class == "Open RID", f"{transport} should classify as Open RID, got {d.drone_class}"
+
+
+def test_drone_class_fpv() -> None:
+    for transport in (
+        "ISM-FHSS",
+        "fpv",
+        "analog-video",
+        "digital-fhss",
+        "elrs",
+        "sik",
+        "sik900",
+        "crossfire",
+        "tbs",
+    ):
+        d = Drone.from_drone_payload({"id": "drone-C", "track_type": "drone", "transport": transport})
+        assert d is not None
+        assert d.drone_class == "FPV", f"{transport} should classify as FPV, got {d.drone_class}"
+
+
+def test_drone_class_other_and_none() -> None:
+    d_unknown_transport = Drone.from_drone_payload({"id": "drone-D", "track_type": "drone", "transport": "Zigbee-Pro"})
+    assert d_unknown_transport is not None and d_unknown_transport.drone_class == "Other"
+    d_no_info = Drone.from_drone_payload({"id": "drone-E", "track_type": "drone"})
+    assert d_no_info is not None and d_no_info.drone_class is None
+
+
+def test_drone_protocol_family_wifi_dji_and_nan() -> None:
+    d = Drone.from_drone_payload({"id": "drone-F", "track_type": "drone", "transport": "WiFi-DJI"})
+    assert d is not None and d.protocol_family == "WiFi-DJI"
+    d = Drone.from_drone_payload({"id": "drone-G", "track_type": "drone", "transport": "WiFi-NAN"})
+    assert d is not None and d.protocol_family == "WiFi-NAN"  # NAN, not NaN
+
+
+def test_drone_protocol_family_bt5_lr_extended() -> None:
+    d = Drone.from_drone_payload({"id": "drone-H", "track_type": "drone", "transport": "BT5-LR-Extended"})
+    assert d is not None and d.protocol_family == "BT5-LR"
+
+
 def test_drone_freq_band_900mhz() -> None:
     payload = {"id": "drone-W", "track_type": "drone", "freq_mhz": 915.0}
     drone = Drone.from_drone_payload(payload)

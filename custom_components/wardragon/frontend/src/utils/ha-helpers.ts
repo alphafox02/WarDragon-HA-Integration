@@ -50,6 +50,7 @@ export function findDrones(hass: HomeAssistant): Drone[] {
       description: asString(a.description),
       rssi: asNumber(a.rssi),
       protocolFamily: asString(a.protocol_family),
+      droneClass: asString(a.drone_class),
       freqBand: asString(a.freq_band),
       freqMhz: asNumber(a.freq_mhz),
       online: s.state !== "unavailable" && s.state !== "unknown",

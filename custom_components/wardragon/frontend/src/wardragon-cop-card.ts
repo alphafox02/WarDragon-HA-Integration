@@ -50,6 +50,9 @@ const VERSION = "0.3.0";
 const CARD_TYPE = "wardragon-cop-card";
 type Tab = "drones" | "kits" | "signals";
 
+const DRONE_CLASSES = ["DJI", "Open RID", "FPV", "Other"] as const;
+type DroneClass = (typeof DRONE_CLASSES)[number];
+
 export class WarDragonCopCard extends LitElement {
   @property({ attribute: false }) hass?: HomeAssistant;
 
@@ -59,6 +62,7 @@ export class WarDragonCopCard extends LitElement {
   @state() private _sort: SortKey = "last_seen";
   @state() private _tab: Tab = "drones";
   @state() private _signalsLastHour = 0;
+  @state() private _classFilter = new Set<DroneClass>();
 
   private _signalCounter: { count: number; resetAt: number } = { count: 0, resetAt: 0 };
 
@@ -210,18 +214,65 @@ export class WarDragonCopCard extends LitElement {
   private _renderDronesTab(drones: Drone[]): TemplateResult {
     const filtered = this._filterDrones(drones);
     const sorted = this._sortDrones(filtered);
-    if (sorted.length === 0) {
-      return html`<div class="empty-state">${
-        drones.length === 0 ? "No drones detected." : "No drones match the current filter."
-      }</div>`;
+    return html`
+      <div class="class-chips">
+        ${DRONE_CLASSES.map((c) => {
+          const active = this._classFilter.has(c);
+          const count = drones.filter((d) => this._matchesClass(d, c)).length;
+          return html`<button
+            class="class-chip"
+            data-active=${String(active)}
+            data-class=${c}
+            @click=${() => this._toggleClass(c)}
+            title=${this._classDescription(c)}
+          >
+            <span>${c}</span>
+            <span class="class-chip-count">${count}</span>
+          </button>`;
+        })}
+      </div>
+      ${sorted.length === 0
+        ? html`<div class="empty-state">${
+            drones.length === 0 ? "No drones detected." : "No drones match the current filter."
+          }</div>`
+        : html`<div class="roster">${sorted.map((d) => this._renderDroneRow(d))}</div>`}
+    `;
+  }
+
+  private _matchesClass(d: Drone, c: DroneClass): boolean {
+    if (c === "Other") {
+      return d.droneClass === "Other" || d.droneClass === null;
     }
-    return html`<div class="roster">${sorted.map((d) => this._renderDroneRow(d))}</div>`;
+    return d.droneClass === c;
+  }
+
+  private _classDescription(c: DroneClass): string {
+    switch (c) {
+      case "DJI":
+        return "DJI consumer drones (OcuSync, WiFi-DJI, O2/O3/O4)";
+      case "Open RID":
+        return "ASTM Remote ID broadcasters (WiFi-Beacon / WiFi-NAN / BT5-LR / UART)";
+      case "FPV":
+        return "FPV / RC links (analog video, digital FHSS, ELRS, SiK)";
+      case "Other":
+        return "Unclassified or transport-unknown";
+    }
+  }
+
+  private _toggleClass(c: DroneClass): void {
+    const next = new Set(this._classFilter);
+    next.has(c) ? next.delete(c) : next.add(c);
+    this._classFilter = next;
   }
 
   private _filterDrones(drones: Drone[]): Drone[] {
     const q = this._query.trim().toLowerCase();
     return drones.filter((d) => {
       if (this._onlineOnly && !d.online) return false;
+      if (this._classFilter.size > 0) {
+        const matches = Array.from(this._classFilter).some((c) => this._matchesClass(d, c));
+        if (!matches) return false;
+      }
       if (q) {
         const hay = [
           d.callsign,
@@ -271,6 +322,7 @@ export class WarDragonCopCard extends LitElement {
         <div class="drone-main">
           <div class="drone-callsign">${d.callsign}</div>
           <div class="drone-meta">
+            ${d.droneClass ? html`<span class="tag" data-class=${d.droneClass}>${d.droneClass}</span>` : ""}
             ${d.protocolFamily ? html`<span class="tag">${d.protocolFamily}</span>` : ""}
             ${d.freqBand
               ? html`<span class="tag" data-band=${d.freqBand}>${d.freqBand}</span>`

@@ -80,6 +80,7 @@
       "freq_mhz": {"name": "Frequency"},
       "freq_band": {"name": "Frequency band"},
       "protocol_family": {"name": "Protocol family"},
+      "drone_class": {"name": "Drone class"},
       "transport": {"name": "Transport"},
       "description": {"name": "Description"},
       "id_type": {"name": "ID type"},

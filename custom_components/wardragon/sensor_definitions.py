@@ -257,6 +257,13 @@ DRONE_SENSORS: tuple[DroneSensorDescription, ...] = (
         value_fn=lambda d: d.protocol_family,
     ),
     DroneSensorDescription(
+        key="drone_class",
+        translation_key="drone_class",
+        name="Drone class",
+        icon="mdi:shield-airplane-outline",
+        value_fn=lambda d: d.drone_class,
+    ),
+    DroneSensorDescription(
         key="transport",
         translation_key="transport",
         name="Transport",
