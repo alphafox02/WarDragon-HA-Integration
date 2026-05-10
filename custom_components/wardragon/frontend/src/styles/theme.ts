@@ -3,7 +3,7 @@ import { css, type CSSResult } from "lit";
 // Tactical, professional, theme-aware. Pulls from HA's CSS variables so
 // the card matches both light and dark dashboards. Subdued accent
 // (cyan-blue) mirrors the WarDragon dragon mark; status uses a small
-// fixed palette rather than rainbow chips.
+// fixed palette rather than rainbow chips. Tabs follow ATAK-app feel.
 
 export const copTheme: CSSResult = css`
   :host {
@@ -30,7 +30,11 @@ export const copTheme: CSSResult = css`
   ha-card {
     padding: 0;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
+
+  /* ---- header ---- */
 
   .cop-header {
     display: flex;
@@ -56,7 +60,6 @@ export const copTheme: CSSResult = css`
     align-items: center;
     gap: 8px;
   }
-
   .cop-title::before {
     content: "";
     width: 6px;
@@ -64,13 +67,17 @@ export const copTheme: CSSResult = css`
     background: var(--wd-accent);
     border-radius: 1px;
   }
+  .cop-version {
+    font-size: 0.7rem;
+    color: var(--wd-text-muted);
+    font-family: var(--wd-mono);
+  }
 
   .cop-stats {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
   }
-
   .stat-tile {
     background: var(--wd-bg-row);
     border-radius: 6px;
@@ -80,21 +87,18 @@ export const copTheme: CSSResult = css`
     gap: 2px;
     border: 1px solid var(--wd-divider);
   }
-
   .stat-label {
     font-size: 0.7rem;
     color: var(--wd-text-muted);
     text-transform: uppercase;
     letter-spacing: 0.06em;
   }
-
   .stat-value {
     font-size: 1.4rem;
     font-weight: 600;
     font-family: var(--wd-mono);
     line-height: 1.1;
   }
-
   .stat-sub {
     font-size: 0.7rem;
     color: var(--wd-text-muted);
@@ -107,10 +111,9 @@ export const copTheme: CSSResult = css`
     gap: 8px;
     align-items: center;
   }
-
   .cop-search {
-    flex: 1 1 220px;
-    min-width: 160px;
+    flex: 1 1 200px;
+    min-width: 140px;
     background: var(--wd-bg-row);
     border: 1px solid var(--wd-divider);
     color: var(--wd-text);
@@ -123,30 +126,6 @@ export const copTheme: CSSResult = css`
     border-color: var(--wd-accent);
     box-shadow: 0 0 0 1px var(--wd-accent-soft);
   }
-
-  .cop-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-  }
-
-  .chip {
-    background: var(--wd-bg-row);
-    border: 1px solid var(--wd-divider);
-    color: var(--wd-text-muted);
-    padding: 4px 10px;
-    font-size: 0.75rem;
-    border-radius: 999px;
-    cursor: pointer;
-    user-select: none;
-    transition: background 0.1s, color 0.1s, border-color 0.1s;
-  }
-  .chip[data-active="true"] {
-    background: var(--wd-accent-soft);
-    color: var(--wd-accent);
-    border-color: var(--wd-accent);
-  }
-
   .cop-sort {
     background: var(--wd-bg-row);
     border: 1px solid var(--wd-divider);
@@ -155,46 +134,100 @@ export const copTheme: CSSResult = css`
     padding: 6px 8px;
     font-size: 0.8rem;
   }
+  .cop-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: var(--wd-text-muted);
+    cursor: pointer;
+    user-select: none;
+  }
+  .cop-toggle input {
+    accent-color: var(--wd-accent);
+    cursor: pointer;
+  }
 
-  .cop-section {
-    padding: 12px 0;
+  /* ---- tab bar ---- */
+
+  .cop-tabs {
+    display: flex;
+    background: var(--wd-bg-row-alt);
+    border-bottom: 1px solid var(--wd-divider);
   }
-  .cop-section + .cop-section {
-    border-top: 1px solid var(--wd-divider);
-  }
-  .section-title {
-    font-size: 0.75rem;
+  .cop-tab {
+    flex: 1 1 0;
+    background: transparent;
+    border: 0;
+    border-bottom: 2px solid transparent;
+    color: var(--wd-text-muted);
+    padding: 10px 12px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.78rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--wd-text-muted);
-    padding: 0 16px 6px;
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: color 0.1s, border-color 0.1s, background 0.1s;
   }
-  .section-count {
+  .cop-tab:hover {
+    color: var(--wd-text);
+    background: var(--wd-bg-row);
+  }
+  .cop-tab[data-active="true"] {
+    color: var(--wd-accent);
+    border-bottom-color: var(--wd-accent);
+    background: var(--wd-bg);
+  }
+  .tab-count {
     font-family: var(--wd-mono);
+    font-size: 0.7rem;
+    color: var(--wd-text-muted);
+    background: var(--wd-bg);
+    padding: 1px 6px;
+    border-radius: 10px;
+    border: 1px solid var(--wd-divider);
+    min-width: 18px;
+    text-align: center;
+  }
+  .cop-tab[data-active="true"] .tab-count {
+    color: var(--wd-accent);
+    border-color: var(--wd-accent);
   }
 
+  /* ---- tab content ---- */
+
+  .cop-tab-content {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    max-height: 540px;
+  }
   .empty-state {
-    padding: 14px 16px;
+    padding: 24px 16px;
     color: var(--wd-text-muted);
     font-style: italic;
     font-size: 0.85rem;
+    text-align: center;
   }
 
-  /* Drone roster */
+  /* ---- drone roster ---- */
+
   .roster {
     display: flex;
     flex-direction: column;
   }
   .drone-row {
     display: grid;
-    grid-template-columns: 12px 1fr auto;
+    grid-template-columns: 12px 1fr;
     gap: 10px;
-    padding: 8px 16px;
+    padding: 10px 16px;
     border-bottom: 1px solid var(--wd-divider);
     align-items: center;
+    cursor: pointer;
+    transition: background 0.1s;
   }
   .drone-row:nth-child(even) {
     background: var(--wd-bg-row-alt);
@@ -211,9 +244,6 @@ export const copTheme: CSSResult = css`
   .drone-status[data-state="online"] {
     background: var(--wd-ok);
     box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.18);
-  }
-  .drone-status[data-state="alert"] {
-    background: var(--wd-alert);
   }
 
   .drone-main {
@@ -232,10 +262,11 @@ export const copTheme: CSSResult = css`
   .drone-meta {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px;
-    font-size: 0.75rem;
+    gap: 6px 10px;
+    font-size: 0.74rem;
     color: var(--wd-text-muted);
     font-family: var(--wd-mono);
+    align-items: center;
   }
   .drone-meta .tag {
     background: var(--wd-bg-row);
@@ -244,55 +275,48 @@ export const copTheme: CSSResult = css`
     border-radius: 3px;
     border: 1px solid var(--wd-divider);
     letter-spacing: 0.04em;
+    font-size: 0.7rem;
   }
-  .drone-meta .tag[data-band="2.4GHz"]   { color: #ffb84d; }
-  .drone-meta .tag[data-band="5.2GHz"]   { color: #4dd0e1; }
-  .drone-meta .tag[data-band="5.8GHz"]   { color: #b388ff; }
-  .drone-meta .tag[data-band="900MHz"]   { color: #aed581; }
-
-  .drone-actions {
-    display: flex;
-    gap: 4px;
-    align-items: center;
-  }
-  .drone-actions button {
-    background: transparent;
-    border: 1px solid var(--wd-divider);
+  .drone-meta .tag[data-band="2.4GHz"] { color: #ffb84d; }
+  .drone-meta .tag[data-band="5.2GHz"] { color: #4dd0e1; }
+  .drone-meta .tag[data-band="5.8GHz"] { color: #b388ff; }
+  .drone-meta .tag[data-band="900MHz"] { color: #aed581; }
+  .drone-meta .age {
     color: var(--wd-text-muted);
-    border-radius: 4px;
-    padding: 3px 8px;
-    cursor: pointer;
-    font-size: 0.75rem;
-    font-family: inherit;
   }
-  .drone-actions button:hover {
-    color: var(--wd-text);
-    border-color: var(--wd-accent);
-  }
-  .drone-actions button[data-danger] {
-    color: var(--wd-alert);
-    border-color: rgba(244, 67, 54, 0.4);
+  .drone-meta .seen-by {
+    color: var(--wd-text-muted);
+    opacity: 0.8;
   }
 
-  /* Kit panel */
+  /* ---- kit grid ---- */
+
   .kit-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 8px;
-    padding: 0 16px;
+    padding: 12px 16px;
   }
   .kit-card {
     background: var(--wd-bg-row);
     border: 1px solid var(--wd-divider);
     border-radius: 6px;
     padding: 10px 12px;
+    cursor: pointer;
+    transition: border-color 0.1s, background 0.1s;
+  }
+  .kit-card:hover {
+    border-color: var(--wd-accent);
   }
   .kit-id {
     font-family: var(--wd-mono);
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: var(--wd-text-muted);
     text-transform: uppercase;
     letter-spacing: 0.04em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
   .kit-name {
     font-weight: 600;
@@ -300,14 +324,16 @@ export const copTheme: CSSResult = css`
     display: flex;
     align-items: center;
     gap: 6px;
+    flex-wrap: wrap;
   }
   .kit-name .pill {
-    font-size: 0.7rem;
+    font-size: 0.68rem;
     padding: 1px 6px;
     border-radius: 999px;
     color: var(--wd-mute);
     background: var(--wd-bg);
     border: 1px solid var(--wd-divider);
+    text-transform: lowercase;
   }
   .kit-name .pill[data-state="online"] { color: var(--wd-ok); border-color: rgba(76, 175, 80, 0.4); }
   .kit-name .pill[data-state="offline"] { color: var(--wd-alert); border-color: rgba(244, 67, 54, 0.4); }
@@ -320,23 +346,33 @@ export const copTheme: CSSResult = css`
     font-family: var(--wd-mono);
     color: var(--wd-text-muted);
   }
-  .kit-stats .v { color: var(--wd-text); }
+  .kit-stats .v {
+    color: var(--wd-text);
+  }
 
-  /* Signal feed */
+  /* ---- signal list ---- */
+
+  .signal-list {
+    display: flex;
+    flex-direction: column;
+  }
   .signal-row {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 6px 16px;
+    padding: 8px 16px;
     font-family: var(--wd-mono);
     font-size: 0.78rem;
     border-bottom: 1px solid var(--wd-divider);
+  }
+  .signal-row:nth-child(even) {
+    background: var(--wd-bg-row-alt);
   }
   .signal-type {
     text-transform: uppercase;
     letter-spacing: 0.06em;
     color: var(--wd-accent);
-    min-width: 56px;
+    min-width: 64px;
   }
   .signal-meta {
     color: var(--wd-text-muted);

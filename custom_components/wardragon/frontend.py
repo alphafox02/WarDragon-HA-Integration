@@ -42,7 +42,7 @@ async def async_register_frontend(hass: HomeAssistant) -> None:
         [StaticPathConfig(URL_BASE, str(static_root), False)]
     )
 
-    js_url = f"{URL_BASE}/{CARD_JS}?v={DOMAIN}-cop-3"
+    js_url = f"{URL_BASE}/{CARD_JS}?v={DOMAIN}-cop-4"
     # Default loader (es5=False). HA injects a dynamic import() that runs
     # in module context but the IIFE's top-level customElements.define
     # call still registers against the global registry because we call
