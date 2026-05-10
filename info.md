@@ -20,4 +20,4 @@ A native Home Assistant integration for [WarDragon](https://github.com/alphafox0
 
 - Home Assistant 2024.1 or newer
 - An MQTT broker reachable by both Home Assistant and DragonSync
-- DragonSync v2.0 or newer running on your WarDragon kit, with `mqtt_ha_native_mode = true` in `config.ini` so DragonSync stops publishing its own HA discovery messages
+- DragonSync v2.0 or newer running on your WarDragon kit, with `mqtt_ha_enabled = false` in `config.ini` (the default — so DragonSync doesn't publish its own HA discovery and create duplicate entities)

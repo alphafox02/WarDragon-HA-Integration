@@ -104,7 +104,7 @@ Drop-in blueprints under **Settings → Automations & Scenes → Blueprints**:
 - **Home Assistant 2024.1** or newer.
 - The HA **MQTT integration** loaded and connected to a broker.
 - **DragonSync v2.0** or newer running on each WarDragon kit (kit-scoped MQTT topic schema).
-- DragonSync's `mqtt_ha_native_mode = true` in `config.ini` so DragonSync stops publishing its own `homeassistant/*` discovery messages — this integration owns entity creation.
+- DragonSync's `mqtt_ha_enabled = false` in `config.ini` (this is the default, so most operators don't have to change anything). When `mqtt_ha_enabled` is `true`, DragonSync publishes its own `homeassistant/*` MQTT discovery configs in addition to whatever this integration creates, which produces duplicate entities. Either keep DragonSync's HA discovery off (recommended) or accept the duplicates.
 
 ---
 
@@ -180,7 +180,7 @@ The `zone.home` placeholder keeps the map renderable until kit telemetry starts 
 - The first kit telemetry can take up to ~30 seconds on a freshly-imaged WarDragon to arrive — DragonSync defers system topics until its kit identity resolves. The kit device only appears in HA after that first message.
 - Drones become unavailable after 5 minutes of silence and are purged after 24 hours by default. Both timeouts are tunable in **Configure → Options** on the integration card.
 - Multi-kit operators: if a drone is `seen_by` an unexpected kit, check `rssi_by_kit` in the drone tracker's attributes — the integration takes position from the kit with the highest RSSI.
-- `mqtt_ha_native_mode = true` is **required** in DragonSync's `config.ini` to avoid duplicate entities.
+- Keep `mqtt_ha_enabled = false` (the default) in DragonSync's `config.ini` to avoid duplicate entities. If you previously turned it on, set it back to `false` and restart DragonSync.
 
 ---
 

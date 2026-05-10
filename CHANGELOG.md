@@ -87,7 +87,7 @@ Tactical layout for live counter-drone monitoring: dense info, dark-friendly, th
 
 - Home Assistant 2024.1 or newer.
 - DragonSync v2.0 or newer running on each WarDragon kit.
-- DragonSync's `mqtt_ha_native_mode = true` to suppress its own `homeassistant/*` discovery configs.
+- DragonSync's `mqtt_ha_enabled = false` (the default) so DragonSync doesn't publish its own `homeassistant/*` discovery configs alongside this integration's entities.
 
 ### Operator dashboard recipe
 

@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "WarDragon",
-        "description": "Enter the MQTT topic prefix used by your WarDragon kit (default: `wardragon`). Make sure DragonSync's `mqtt_ha_native_mode` flag is set so this integration owns entity creation rather than DragonSync's MQTT auto-discovery.",
+        "description": "Enter the MQTT topic prefix used by your WarDragon kit (default: `wardragon`). Keep `mqtt_ha_enabled = false` in DragonSync's `config.ini` (the default) so this integration owns entity creation rather than DragonSync's MQTT auto-discovery — otherwise you'll get duplicate entities.",
         "data": {
           "mqtt_prefix": "MQTT prefix"
         }
@@ -51,9 +51,9 @@
       "title": "MQTT integration not loaded",
       "description": "The WarDragon integration depends on the Home Assistant MQTT integration. Set up MQTT, then reload WarDragon."
     },
-    "dragonsync_native_mode_off": {
-      "title": "DragonSync `mqtt_ha_native_mode` is off",
-      "description": "DragonSync is publishing its own Home Assistant MQTT discovery messages alongside this integration's entities, which produces duplicates. Set `mqtt_ha_native_mode = true` in DragonSync's `config.ini` and restart DragonSync."
+    "dragonsync_ha_enabled_on": {
+      "title": "DragonSync `mqtt_ha_enabled` is on",
+      "description": "DragonSync is publishing its own Home Assistant MQTT discovery messages alongside this integration's entities, which produces duplicates. Set `mqtt_ha_enabled = false` in DragonSync's `config.ini` and restart DragonSync."
     }
   },
   "entity": {
