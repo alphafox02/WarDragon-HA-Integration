@@ -1,0 +1,14 @@
+{
+  "domain": "wardragon",
+  "name": "WarDragon",
+  "after_dependencies": ["frontend"],
+  "codeowners": ["@alphafox02"],
+  "config_flow": true,
+  "dependencies": ["http", "mqtt"],
+  "documentation": "https://github.com/alphafox02/WarDragon-HA-Integration",
+  "integration_type": "hub",
+  "iot_class": "local_push",
+  "issue_tracker": "https://github.com/alphafox02/WarDragon-HA-Integration/issues",
+  "requirements": [],
+  "version": "0.2.0"
+}

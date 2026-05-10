@@ -1,0 +1,55 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+      - "v*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: custom_components/wardragon/frontend/package-lock.json
+
+      - name: Build COP card bundle
+        working-directory: custom_components/wardragon/frontend
+        run: npm ci && npm run build
+
+      - name: Stage integration (exclude dev artifacts)
+        run: |
+          mkdir -p "${{ github.workspace }}/staging"
+          rsync -a "${{ github.workspace }}/custom_components/wardragon/" \
+            "${{ github.workspace }}/staging/wardragon/" \
+            --exclude='frontend/node_modules' \
+            --exclude='frontend/src' \
+            --exclude='frontend/package.json' \
+            --exclude='frontend/package-lock.json' \
+            --exclude='frontend/rollup.config.mjs' \
+            --exclude='frontend/tsconfig.json' \
+            --exclude='__pycache__' \
+            --exclude='.pytest_cache' \
+            --exclude='.ruff_cache' \
+            --exclude='.mypy_cache'
+
+      - name: Create integration zip
+        run: |
+          cd "${{ github.workspace }}/staging"
+          zip -r "${{ github.workspace }}/wardragon.zip" wardragon
+          ls -lh "${{ github.workspace }}/wardragon.zip"
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v3
+        with:
+          generate_release_notes: true
+          prerelease: ${{ contains(github.ref, '-') }}
+          files: wardragon.zip

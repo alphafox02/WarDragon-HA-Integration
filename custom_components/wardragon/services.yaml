@@ -1,0 +1,10 @@
+clear_drone:
+  fields:
+    drone_id:
+      required: true
+      example: drone-F6Q8D244C00CL2KF
+      selector:
+        text:
+
+export_drones:
+  fields: {}

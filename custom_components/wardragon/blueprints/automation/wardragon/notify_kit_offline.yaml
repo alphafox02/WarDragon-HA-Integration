@@ -1,0 +1,26 @@
+blueprint:
+  name: WarDragon — kit offline
+  description: >-
+    Fire when a WarDragon kit stops sending telemetry (DragonSync crashed,
+    network down, or kit powered off). Uses the `wardragon_kit_offline` event.
+  domain: automation
+  source_url: https://github.com/alphafox02/WarDragon-HA-Integration/blob/main/custom_components/wardragon/blueprints/automation/wardragon/notify_kit_offline.yaml
+  input:
+    notify_target:
+      name: Notify service
+      description: The notify service to call (e.g. `notify.mobile_app_phone`).
+      default: notify.notify
+      selector:
+        text:
+trigger:
+  - platform: event
+    event_type: wardragon_kit_offline
+action:
+  - service: !input notify_target
+    data:
+      title: WarDragon
+      message: >-
+        Kit {{ trigger.event.data.kit_id }} went offline
+        (via {{ trigger.event.data.via | default('heartbeat') }}).
+mode: parallel
+max_exceeded: silent

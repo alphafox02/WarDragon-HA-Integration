@@ -1,0 +1,45 @@
+version: 2
+updates:
+  # GitHub Actions used in our workflows
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: ci
+    labels:
+      - dependencies
+      - github-actions
+
+  # Frontend (TypeScript / Lit / Rollup)
+  - package-ecosystem: npm
+    directory: /custom_components/wardragon/frontend
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: frontend
+    labels:
+      - dependencies
+      - npm
+    open-pull-requests-limit: 5
+    groups:
+      rollup:
+        patterns:
+          - "@rollup/*"
+          - "rollup"
+      lit:
+        patterns:
+          - "lit"
+          - "lit-*"
+
+  # Python dev tooling (pytest etc.) — only `tests/` has pip deps today,
+  # but list this so future requirements files get watched too.
+  - package-ecosystem: pip
+    directory: /
+    schedule:
+      interval: weekly
+    commit-message:
+      prefix: deps
+    labels:
+      - dependencies
+      - python

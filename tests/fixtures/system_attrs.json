@@ -1,0 +1,21 @@
+{
+  "id": "wardragon-G6PA14100J63",
+  "latitude": 27.8002846,
+  "longitude": -82.6686196,
+  "hae": 12.5,
+  "cpu_usage": 23.4,
+  "memory_total_mb": 7892.0,
+  "memory_available_mb": 4521.5,
+  "disk_total_mb": 117440.0,
+  "disk_used_mb": 38217.0,
+  "temperature_c": 52.1,
+  "uptime_s": 86421.0,
+  "pluto_temp_c": 48.7,
+  "zynq_temp_c": 51.3,
+  "speed_mps": 0.0,
+  "track_deg": 0.0,
+  "gps_fix": true,
+  "time_source": "gpsd",
+  "gpsd_time_utc": "2026-05-09T14:32:11Z",
+  "updated": 1746796331
+}

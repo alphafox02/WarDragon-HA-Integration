@@ -1,0 +1,53 @@
+blueprint:
+  name: WarDragon — FPV/RF signal detected
+  description: >-
+    Fire when DragonSync reports an FPV or RF signal detection. Optional
+    filters narrow to specific signal types (e.g. `fpv`, `analog-video`,
+    `digital-fhss`) or minimum RSSI.
+  domain: automation
+  source_url: https://github.com/alphafox02/WarDragon-HA-Integration/blob/main/custom_components/wardragon/blueprints/automation/wardragon/notify_signal_detected.yaml
+  input:
+    notify_target:
+      name: Notify service
+      description: The notify service to call (e.g. `notify.mobile_app_phone`).
+      default: notify.notify
+      selector:
+        text:
+    signal_type_filter:
+      name: Signal type filter
+      description: Only fire for this signal type. Leave blank for all types.
+      default: ""
+      selector:
+        text:
+    min_rssi:
+      name: Minimum RSSI
+      description: Only fire when signal RSSI is at least this value (dBm). Leave blank to disable.
+      default: -200
+      selector:
+        number:
+          min: -200
+          max: 0
+          unit_of_measurement: dBm
+trigger:
+  - platform: event
+    event_type: wardragon_signal_detected
+condition:
+  - condition: template
+    value_template: >-
+      {% set f = signal_type_filter | default('', true) %}
+      {{ f == '' or trigger.event.data.signal_type == f }}
+  - condition: template
+    value_template: >-
+      {% set min_r = min_rssi | int(-200) %}
+      {{ trigger.event.data.rssi is none or trigger.event.data.rssi >= min_r }}
+action:
+  - service: !input notify_target
+    data:
+      title: WarDragon
+      message: >-
+        Signal detected: {{ trigger.event.data.signal_type }}
+        ({{ trigger.event.data.callsign or 'unknown' }})
+        @ {{ trigger.event.data.center_mhz }} MHz, RSSI {{ trigger.event.data.rssi }} dBm
+        — seen by {{ trigger.event.data.seen_by }}
+mode: parallel
+max_exceeded: silent

@@ -1,0 +1,40 @@
+blueprint:
+  name: WarDragon — drone enters zone
+  description: >-
+    Send a notification when a WarDragon-tracked drone enters a Home Assistant
+    zone. Uses the drone device_tracker entity.
+  domain: automation
+  source_url: https://github.com/alphafox02/WarDragon-HA-Integration/blob/main/custom_components/wardragon/blueprints/automation/wardragon/notify_drone_in_zone.yaml
+  input:
+    drone_tracker:
+      name: Drone tracker
+      description: The drone's device_tracker entity (one of the WarDragon drone trackers).
+      selector:
+        entity:
+          domain: device_tracker
+    zone:
+      name: Zone
+      description: The zone to watch for entry.
+      selector:
+        entity:
+          domain: zone
+    notify_target:
+      name: Notify service
+      description: The notify service to call (e.g. `notify.mobile_app_phone`).
+      default: notify.notify
+      selector:
+        text:
+trigger:
+  - platform: zone
+    entity_id: !input drone_tracker
+    zone: !input zone
+    event: enter
+action:
+  - service: !input notify_target
+    data:
+      title: WarDragon
+      message: >-
+        Drone {{ trigger.from_state.attributes.description or trigger.entity_id }}
+        entered {{ trigger.zone.attributes.friendly_name }}.
+mode: parallel
+max_exceeded: silent

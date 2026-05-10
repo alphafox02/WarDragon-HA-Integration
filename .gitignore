@@ -1,0 +1,62 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Testing
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.cache/
+
+# Type checking
+.mypy_cache/
+.ruff_cache/
+
+# HA development
+.home-assistant/
+.storage/
+
+# Build artifacts
+*.log
+
+# Internal planning docs (kept on disk, not published)
+docs/PHASE1.md
+
+# Frontend build outputs (rebuilt in CI on tag push)
+custom_components/wardragon/frontend/node_modules/
+custom_components/wardragon/frontend/dist/

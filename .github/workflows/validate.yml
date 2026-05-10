@@ -1,0 +1,65 @@
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  hassfest:
+    name: Hassfest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: home-assistant/actions/hassfest@master
+
+  hacs:
+    name: HACS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: hacs/action@main
+        with:
+          category: integration
+
+  npm_audit:
+    name: npm audit (frontend)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: custom_components/wardragon/frontend/package-lock.json
+      - name: Install (no scripts, no audit prompts)
+        working-directory: custom_components/wardragon/frontend
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Audit (fail on high or critical)
+        working-directory: custom_components/wardragon/frontend
+        run: npm audit --omit=dev --audit-level=high || (npm audit --omit=dev; exit 1)
+      - name: Audit dev (informational)
+        working-directory: custom_components/wardragon/frontend
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+  typecheck:
+    name: TypeScript typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: custom_components/wardragon/frontend/package-lock.json
+      - name: Install
+        working-directory: custom_components/wardragon/frontend
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: tsc --noEmit
+        working-directory: custom_components/wardragon/frontend
+        run: npx tsc --noEmit
+      - name: Build (sanity)
+        working-directory: custom_components/wardragon/frontend
+        run: npm run build

@@ -1,0 +1,122 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "WarDragon",
+        "description": "Enter the MQTT topic prefix used by your WarDragon kit (default: `wardragon`). Make sure DragonSync's `mqtt_ha_native_mode` flag is set so this integration owns entity creation rather than DragonSync's MQTT auto-discovery.",
+        "data": {
+          "mqtt_prefix": "MQTT prefix"
+        }
+      }
+    },
+    "error": {
+      "invalid_prefix": "Prefix must contain only letters, numbers, slashes, dashes, and underscores."
+    },
+    "abort": {
+      "mqtt_required": "The MQTT integration must be set up before installing WarDragon.",
+      "already_configured": "This MQTT prefix is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "WarDragon options",
+        "description": "Tune lifecycle timeouts. Defaults are sensible for most operators.",
+        "data": {
+          "drone_inactivity_timeout": "Drone inactivity timeout (seconds)",
+          "drone_purge_after": "Drone purge after (seconds)",
+          "kit_offline_timeout": "Kit offline timeout (seconds)"
+        }
+      }
+    }
+  },
+  "services": {
+    "clear_drone": {
+      "name": "Clear drone",
+      "description": "Remove a tracked drone from Home Assistant immediately.",
+      "fields": {
+        "drone_id": {
+          "name": "Drone ID",
+          "description": "The drone identifier (e.g. drone-F6Q8D244C00CL2KF)."
+        }
+      }
+    },
+    "export_drones": {
+      "name": "Export drones",
+      "description": "Return a JSON snapshot of every currently tracked drone."
+    }
+  },
+  "issues": {
+    "mqtt_not_loaded": {
+      "title": "MQTT integration not loaded",
+      "description": "The WarDragon integration depends on the Home Assistant MQTT integration. Set up MQTT, then reload WarDragon."
+    },
+    "dragonsync_native_mode_off": {
+      "title": "DragonSync `mqtt_ha_native_mode` is off",
+      "description": "DragonSync is publishing its own Home Assistant MQTT discovery messages alongside this integration's entities, which produces duplicates. Set `mqtt_ha_native_mode = true` in DragonSync's `config.ini` and restart DragonSync."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "cpu_usage": {"name": "CPU usage"},
+      "memory_available_mb": {"name": "Memory available"},
+      "memory_total_mb": {"name": "Memory total"},
+      "disk_used_mb": {"name": "Disk used"},
+      "disk_total_mb": {"name": "Disk total"},
+      "temperature_c": {"name": "Mainboard temperature"},
+      "pluto_temp_c": {"name": "PlutoSDR temperature"},
+      "zynq_temp_c": {"name": "Zynq SoC temperature"},
+      "uptime_s": {"name": "Uptime"},
+      "hae": {"name": "Altitude (HAE)"},
+      "speed_mps": {"name": "Speed"},
+      "track_deg": {"name": "Course"},
+      "time_source": {"name": "Time source"},
+      "rssi": {"name": "RSSI"},
+      "altitude": {"name": "Altitude"},
+      "height": {"name": "Height"},
+      "speed": {"name": "Speed"},
+      "vspeed": {"name": "Vertical speed"},
+      "direction": {"name": "Heading"},
+      "freq_mhz": {"name": "Frequency"},
+      "freq_band": {"name": "Frequency band"},
+      "protocol_family": {"name": "Protocol family"},
+      "transport": {"name": "Transport"},
+      "description": {"name": "Description"},
+      "id_type": {"name": "ID type"},
+      "ua_type_name": {"name": "UA type"},
+      "caa_id": {"name": "CAA registration"},
+      "operator_id": {"name": "Operator ID"},
+      "mac": {"name": "MAC address"},
+      "seen_by": {"name": "Seen by"},
+      "kit_count": {"name": "Observing kits"},
+      "rid_make": {"name": "Manufacturer (RID lookup)"},
+      "rid_model": {"name": "Model (RID lookup)"},
+      "rid_status": {"name": "Registration status"},
+      "horizontal_accuracy": {"name": "Horizontal accuracy"},
+      "signal_type": {"name": "Signal type"},
+      "signal_source": {"name": "Signal source"},
+      "signal_callsign": {"name": "Signal callsign"},
+      "signal_rssi": {"name": "Signal RSSI"},
+      "signal_center_mhz": {"name": "Signal centre frequency"},
+      "signal_bandwidth_mhz": {"name": "Signal bandwidth"},
+      "signal_description": {"name": "Signal description"}
+    },
+    "binary_sensor": {
+      "gps_fix": {"name": "GPS fix"},
+      "online": {"name": "Online"},
+      "rid_lookup_success": {"name": "RID lookup matched"},
+      "has_pilot": {"name": "Pilot location known"},
+      "has_home": {"name": "Home location known"}
+    },
+    "device_tracker": {
+      "drone_position": {"name": "Position"},
+      "pilot_position": {"name": "Pilot"},
+      "home_position": {"name": "Home"},
+      "kit_position": {"name": "Position"},
+      "signal_position": {"name": "Current signal"}
+    },
+    "button": {
+      "clear_drone": {"name": "Clear drone"}
+    }
+  }
+}
