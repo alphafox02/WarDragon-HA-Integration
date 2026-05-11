@@ -222,18 +222,28 @@ class WarDragonHomeDeviceTracker(WarDragonDroneEntity, TrackerEntity):
 
 
 class WarDragonKitDeviceTracker(WarDragonKitEntity, TrackerEntity):
+    """Kit position tracker.
+
+    Available whenever the kit has valid coordinates (filtered for the
+    0,0 sentinel). gps_fix is NOT a gating condition here — modern GPS
+    receivers continue to report the last-known fix while temporarily
+    losing lock, and the operator still wants the kit visible on the map
+    in that case. Fix quality is surfaced via the kit's binary_sensor
+    (binary_sensor.<kit>_gps_fix) for operators who care.
+    """
+
     _attr_source_type = SourceType.GPS
     _attr_icon = "mdi:router-wireless"
 
     @property
     def latitude(self) -> float | None:
         k = self.kit
-        return k.latitude if k and k.has_position and k.gps_fix else None
+        return k.latitude if k and k.has_position else None
 
     @property
     def longitude(self) -> float | None:
         k = self.kit
-        return k.longitude if k and k.has_position and k.gps_fix else None
+        return k.longitude if k and k.has_position else None
 
     @property
     def location_accuracy(self) -> int:
@@ -242,7 +252,7 @@ class WarDragonKitDeviceTracker(WarDragonKitEntity, TrackerEntity):
     @property
     def available(self) -> bool:
         k = self.kit
-        return k is not None and k.available and k.has_position and k.gps_fix
+        return k is not None and k.available and k.has_position
 
     @property
     def extra_state_attributes(self) -> dict[str, Any]:
@@ -257,6 +267,7 @@ class WarDragonKitDeviceTracker(WarDragonKitEntity, TrackerEntity):
                 "track_deg": k.track_deg,
                 "time_source": k.time_source,
                 "gpsd_time_utc": k.gpsd_time_utc,
+                "gps_fix": k.gps_fix,
             }.items()
             if vv is not None
         }
