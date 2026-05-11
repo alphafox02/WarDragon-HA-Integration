@@ -100,8 +100,14 @@ KIT_SENSORS: tuple[KitSensorDescription, ...] = (
         translation_key="temperature_c",
         name="Mainboard temperature",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        # Suggested display unit so HA renders in Celsius regardless of the
+        # user's locale-default unit system. Without this, imperial users see
+        # the auto-converted Fahrenheit value (e.g. 125.6) with no unit label
+        # in places that read entity state directly. See issue #22.
+        suggested_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
         value_fn=lambda k: k.temperature_c,
     ),
     KitSensorDescription(
@@ -109,8 +115,10 @@ KIT_SENSORS: tuple[KitSensorDescription, ...] = (
         translation_key="pluto_temp_c",
         name="PlutoSDR temperature",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        suggested_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda k: k.pluto_temp_c,
     ),
@@ -119,8 +127,10 @@ KIT_SENSORS: tuple[KitSensorDescription, ...] = (
         translation_key="zynq_temp_c",
         name="Zynq SoC temperature",
         native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+        suggested_unit_of_measurement=UnitOfTemperature.CELSIUS,
         device_class=SensorDeviceClass.TEMPERATURE,
         state_class=SensorStateClass.MEASUREMENT,
+        suggested_display_precision=1,
         entity_category=EntityCategory.DIAGNOSTIC,
         value_fn=lambda k: k.zynq_temp_c,
     ),

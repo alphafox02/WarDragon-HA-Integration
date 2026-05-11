@@ -85,11 +85,14 @@ export function findKits(hass: HomeAssistant): Kit[] {
     const kitId = `wardragon-${baseSlug.toUpperCase().replace(/_/g, "")}`;
     const sensorBase = `sensor.wardragon_${baseSlug}`;
     const binBase = `binary_sensor.wardragon_${baseSlug}`;
+    // Sensor entity_ids are derived by HA from the entity description's `name=`
+    // attribute (slugified), not from `translation_key`. Match those names here
+    // so the card can read live values from HA's state store. See issue #21.
     const cpu = asNumber(hass.states[`${sensorBase}_cpu_usage`]?.state);
-    const temperatureC = asNumber(hass.states[`${sensorBase}_temperature_c`]?.state);
-    const plutoTempC = asNumber(hass.states[`${sensorBase}_pluto_temp_c`]?.state);
-    const zynqTempC = asNumber(hass.states[`${sensorBase}_zynq_temp_c`]?.state);
-    const uptimeS = asNumber(hass.states[`${sensorBase}_uptime_s`]?.state);
+    const temperatureC = asNumber(hass.states[`${sensorBase}_mainboard_temperature`]?.state);
+    const plutoTempC = asNumber(hass.states[`${sensorBase}_plutosdr_temperature`]?.state);
+    const zynqTempC = asNumber(hass.states[`${sensorBase}_zynq_soc_temperature`]?.state);
+    const uptimeS = asNumber(hass.states[`${sensorBase}_uptime`]?.state);
     const onlineBin = hass.states[`${binBase}_online`];
     const gpsFixBin = hass.states[`${binBase}_gps_fix`];
     out.push({
