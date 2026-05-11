@@ -226,11 +226,19 @@ action:
 
 ## Troubleshooting
 
-- **No devices appear**: check the HA MQTT integration is loaded and connected. Then check `mosquitto_sub -t 'wardragon/#' -v` from the same network — you should see `wardragon/system/<kit_id>/attrs` and `wardragon/drones` traffic.
+- **No devices appear**: check the HA MQTT integration is loaded and connected. Then check `mosquitto_sub -t 'wardragon/#' -v` from the same network — you should see `wardragon/system/<kit_id>/attrs` and `wardragon/drones` traffic. If you see `wardragon/system/attrs` (no kit_id segment) instead, your DragonSync is on the legacy single-kit schema and needs upgrading to v2.0+.
 - **"Mqtt required" error in config flow**: install the official [MQTT integration](https://www.home-assistant.io/integrations/mqtt/) before WarDragon.
 - **Drone marker stuck at the equator**: this means DragonSync sent `lat=0, lon=0` (no GPS fix). The integration filters these out and marks the tracker unavailable; if you see a marker, the filter regressed — file an issue.
-- **COP card not in the picker**: hard-refresh the browser (Ctrl-F5). Home Assistant caches frontend resources; a hard refresh forces it to pick up the auto-registered card module after first install.
+- **Kit shows in the device list but not on the map**: prior to v0.3.0 the kit position tracker required `gps_fix: true`. Static-coordinate kits (no GPSd, `time_source: static`) were hidden. v0.3.0+ shows the kit at its published coords regardless; the `binary_sensor.<kit>_gps_fix` is still available for automations that care about fix quality.
+- **COP card shows "Configuration error" on cold load**: the bundle is loaded via dynamic `import()` and occasionally resolves after the dashboard tries to instantiate it. One hard-refresh later it's cached and the race is gone. If it consistently fails to load across multiple refreshes, a stale service worker is usually the culprit — reset it from the browser console:
+  ```js
+  navigator.serviceWorker.getRegistrations().then(rs => Promise.all(rs.map(r => r.unregister()))).then(() => location.reload(true));
+  ```
+- **COP card not in the picker**: hard-refresh the browser (Ctrl-F5). Home Assistant caches frontend resources; a hard refresh forces it to pick up the auto-registered card module after first install. If it's still missing, add it via the **Manual** card option at the bottom of the picker with `type: custom:wardragon-cop-card` — the picker occasionally hangs on the "Custom cards" loading state even when the card is registered globally.
 - **Per-kit availability seems wrong**: requires DragonSync v2.0+. v1 had a single `wardragon/system/availability` topic shared across kits.
+- **Temperatures display as 125+ raw numbers**: fixed in v0.3.0. Earlier builds didn't declare `native_unit_of_measurement` on the temperature sensors, so HA rendered Celsius values without a unit and (depending on operator locale) auto-converted them to Fahrenheit without the label. Upgrade.
+
+For alternative dashboard layouts (auto-discovering map without a manual entity list, tabbed layout, etc.) see [docs/DASHBOARDS.md](docs/DASHBOARDS.md).
 
 ---
 
