@@ -1,59 +1,14 @@
 # Dashboard recipes
 
-The README's "Suggested dashboard layout" works for a single static install — manual entity list, COP on the left, map on the right. When kits and drones come and go you'd be editing YAML by hand.
+[INSTALL.md](INSTALL.md) walks you through the default setup: COP card on the left, auto-discovering map on the right, using HACS `auto-entities` to wrap the map. That's the layout most operators end up running.
 
-This doc covers the one alternative most operators end up wanting: an auto-discovering map that doesn't need maintenance.
-
----
-
-## Auto-discovering map (no entity list to maintain)
-
-Native HA `map` takes a hard-coded entity list. The community card [`auto-entities`](https://github.com/thomasloven/lovelace-auto-entities) (installed via HACS) wraps any card and rebuilds its entity list from filters every state change. New kit publishes → entity appears → filter matches → map updates. No code changes when adding kits or as drones come and go.
-
-### Install auto-entities
-
-1. Open HACS → **Frontend** (or **Plugins** on older HACS).
-2. Three-dot menu → **Custom repositories** is *not* needed — `auto-entities` is in the default HACS index.
-3. Click **Explore & download repositories**, search **auto-entities**, pick **Lovelace auto-entities** by Thomas Lovén.
-4. **Download** → accept defaults.
-5. Reload the browser (HA does not need to restart for frontend resources).
-
-### Use it for the map
-
-Swap the `map` card in the README's suggested dashboard for this:
-
-```yaml
-- type: custom:auto-entities
-  card:
-    type: map
-    default_zoom: 14
-    hours_to_show: 1
-    aspect_ratio: "16:10"
-  filter:
-    include:
-      # Kit position + current-signal-channel tracker (both end in _position)
-      - entity_id: "device_tracker.wardragon_*_position"
-      # Drone main + pilot + home trackers (all end in _position):
-      #   device_tracker.drone_<id>_position
-      #   device_tracker.drone_<id>_pilot_position
-      #   device_tracker.drone_<id>_home_position
-      - entity_id: "device_tracker.drone_*_position"
-      - entity_id: "zone.home"
-    exclude:
-      - state: "unavailable"
-      - state: "unknown"
-  grid_options:
-    columns: full
-    rows: 12
-```
-
-Note that `device_tracker.drone_*_position` is a single glob that already catches the drone's main, pilot, and home trackers — they all share the `_position` suffix from the integration's `EntityDescription` keys. You don't need separate filter lines for pilot and home.
+This doc covers alternatives for operators who want a different layout or don't want to install `auto-entities`.
 
 ---
 
-## Tabbed dashboard (no HACS dep)
+## Tabbed dashboard (no HACS dep for the map)
 
-If you don't want to install `auto-entities`, you can get auto-discovery for free by giving the map view its own tab and using HA's built-in `map` strategy (the same one that powers HA's sidebar "Map" dashboard):
+If you don't want `auto-entities`, you can get auto-discovery on the map for free by giving the map its own dashboard view and using HA's built-in `map` strategy — the same one that powers HA's sidebar "Map" dashboard.
 
 ```yaml
 title: WarDragon
@@ -71,6 +26,73 @@ views:
       type: map
 ```
 
-Two tabs: **COP** and **Map**. No HACS dependency, no entity list to maintain. The cost is a click to switch tabs instead of side-by-side viewing.
+Two tabs at the top of the dashboard: **COP** and **Map**. No HACS dependency, no entity list to maintain. The trade is a click to switch tabs instead of seeing both at once.
 
-Caveat: the built-in `map` strategy auto-discovers **every** `device_tracker` entity on the HA install that has location attributes — not just WarDragon ones. If your HA also tracks phones, cars, or other people via Mobile App / iCloud / GPSLogger, those markers will appear on this tab too. If you want a WarDragon-only map, use the `auto-entities` approach above with explicit filters.
+Caveat: HA's built-in `map` strategy auto-discovers **every** `device_tracker` with location attributes — not just WarDragon ones. If your HA also tracks phones, cars, or other people via Mobile App / iCloud / GPSLogger, those markers also show up on this tab. If you want a WarDragon-only map view, use the default side-by-side layout from [INSTALL.md](INSTALL.md) which filters by entity_id glob.
+
+---
+
+## Panel / wallboard mode (for a kiosk or wall-mounted tablet)
+
+For an operator wall-mount where the dashboard fills the entire screen and there's no HA chrome, use `panel: true` on the view. Combine with `auto-entities` so it stays current as drones come and go.
+
+```yaml
+title: WarDragon Wallboard
+views:
+  - title: Wall
+    path: wall
+    icon: mdi:radar
+    panel: true
+    cards:
+      - type: custom:auto-entities
+        card:
+          type: map
+          default_zoom: 13
+          aspect_ratio: "16:9"
+          hours_to_show: 4
+        filter:
+          include:
+            - entity_id: "device_tracker.wardragon_*_position"
+            - entity_id: "device_tracker.drone_*_position"
+          exclude:
+            - state: "unavailable"
+            - state: "unknown"
+```
+
+`panel: true` makes the single card fill the whole view. `hours_to_show: 4` leaves a longer trail than the default 1 hour, which is more useful when the wallboard is meant to show recent activity at a glance.
+
+If you want both the COP and the map on the wallboard, drop `panel: true` and use the sections layout from [INSTALL.md](INSTALL.md) with the COP and map cards side by side.
+
+---
+
+## Per-drone "follow" view
+
+For an exercise or after-action review of a specific drone, you sometimes want one drone's full telemetry visible alongside its position. Add a separate view to the WarDragon dashboard:
+
+```yaml
+- title: Track
+  path: track
+  cards:
+    - type: vertical-stack
+      cards:
+        - type: map
+          default_zoom: 16
+          aspect_ratio: "4:3"
+          entities:
+            - device_tracker.drone_<drone_id>_position
+            - device_tracker.drone_<drone_id>_pilot
+            - device_tracker.drone_<drone_id>_home
+        - type: entities
+          title: Drone telemetry
+          entities:
+            - sensor.drone_<drone_id>_rssi
+            - sensor.drone_<drone_id>_altitude
+            - sensor.drone_<drone_id>_speed
+            - sensor.drone_<drone_id>_heading
+            - sensor.drone_<drone_id>_protocol_family
+            - sensor.drone_<drone_id>_frequency_band
+            - sensor.drone_<drone_id>_operator_id
+            - sensor.drone_<drone_id>_caa_registration
+```
+
+Replace `<drone_id>` with the actual drone_id from the integration. This view stops auto-updating its entity list (since you're pinning a specific drone), but for incident review that's the point.

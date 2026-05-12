@@ -110,66 +110,28 @@ Drop-in blueprints under **Settings → Automations & Scenes → Blueprints**:
 
 ## Installation
 
+Full end-to-end walkthrough for a fresh Home Assistant install — including the HACS card install for `auto-entities` and the side-by-side dashboard YAML — lives in **[docs/INSTALL.md](docs/INSTALL.md)**. Follow that if you're new to this integration or starting from scratch.
+
+For experienced operators, the short version:
+
 ### HACS (recommended)
 
-1. Open HACS → **Integrations**.
-2. Three-dot menu → **Custom repositories**.
-3. Add `https://github.com/alphafox02/WarDragon-HA-Integration` with category **Integration**.
-4. Install **WarDragon**.
-5. Restart Home Assistant.
-6. Settings → **Devices & Services** → Add Integration → search "WarDragon".
-7. Enter your MQTT topic prefix (default `wardragon`).
+1. HACS -> three-dot menu -> **Custom repositories** -> add `https://github.com/alphafox02/WarDragon-HA-Integration`, category **Integration**.
+2. Install **WarDragon** from the HACS card.
+3. Restart Home Assistant.
+4. **Settings -> Devices & Services -> Add Integration** -> search **WarDragon**.
+5. Accept default MQTT topic prefix `wardragon` (or override if your DragonSync uses something different).
+6. The COP card auto-registers on first install — drop it onto any dashboard via the card picker.
 
-The COP card auto-registers on first install — open any Lovelace dashboard, click "Add card", and pick **WarDragon COP** from the card picker.
+For the **side-by-side COP + auto-discovering map** dashboard the project ships as its reference layout, see [docs/INSTALL.md](docs/INSTALL.md) section 5 onward. It walks through installing `auto-entities` from HACS and pasting the dashboard YAML.
 
-#### Suggested dashboard layout
-
-A common starting point is COP on the left, native HA map on the right. Add a new dashboard from scratch and paste this into Raw configuration editor:
-
-```yaml
-title: WarDragon
-views:
-  - title: Ops
-    path: ops
-    icon: mdi:radar
-    type: sections
-    max_columns: 4
-    sections:
-      - type: grid
-        column_span: 1
-        cards:
-          - type: custom:wardragon-cop-card
-            grid_options:
-              columns: full
-              rows: auto
-
-      - type: grid
-        column_span: 3
-        cards:
-          - type: map
-            default_zoom: 14
-            hours_to_show: 1
-            auto_fit: true
-            aspect_ratio: "16:10"
-            entities:
-              - zone.home
-              # once a kit is online, swap zone.home out for real entities, e.g.:
-              # - device_tracker.wardragon_<kit_id>_position
-              # - device_tracker.drone_<drone_id>_position
-              # - device_tracker.drone_<drone_id>_pilot_position
-              # - device_tracker.drone_<drone_id>_home_position
-            grid_options:
-              columns: full
-              rows: 12
-```
-
-The `zone.home` placeholder keeps the map renderable until kit telemetry starts populating real `device_tracker` entities. Once a kit publishes, replace it with the kit's tracker entity_id and any drone trackers you want pinned.
+For **alternative dashboard layouts** (tabbed, panel/wallboard, per-drone follow), see [docs/DASHBOARDS.md](docs/DASHBOARDS.md).
 
 ### Manual
 
 1. **Install from a release, not from `main`.** The COP card bundle (`frontend/dist/wardragon-cop-card.js`) is gitignored — it's only built when a tagged release runs through CI. Grab `wardragon.zip` from the [Releases page](https://github.com/alphafox02/WarDragon-HA-Integration/releases) and extract `wardragon/` into your HA `config/custom_components/`.
 
-   *Or* if you really want to install from `main`: `cd custom_components/wardragon/frontend && npm ci && npm run build` first to produce the bundle, then copy.
+   Or if you really want to install from `main`: `cd custom_components/wardragon/frontend && npm ci && npm run build` first to produce the bundle, then copy.
 2. Restart Home Assistant.
 3. Add the integration as above.
 
@@ -238,7 +200,7 @@ action:
 - **Per-kit availability seems wrong**: requires DragonSync v2.0+. v1 had a single `wardragon/system/availability` topic shared across kits.
 - **Temperatures display as 125+ raw numbers**: fixed in v0.3.0. Earlier builds didn't declare `native_unit_of_measurement` on the temperature sensors, so HA rendered Celsius values without a unit and (depending on operator locale) auto-converted them to Fahrenheit without the label. Upgrade.
 
-For alternative dashboard layouts (auto-discovering map without a manual entity list, tabbed layout, etc.) see [docs/DASHBOARDS.md](docs/DASHBOARDS.md).
+For the canonical end-to-end install walkthrough (HACS install, `auto-entities` card, side-by-side dashboard YAML), see [docs/INSTALL.md](docs/INSTALL.md). For alternative dashboard layouts (tabbed, panel/wallboard, per-drone follow), see [docs/DASHBOARDS.md](docs/DASHBOARDS.md).
 
 ---
 
