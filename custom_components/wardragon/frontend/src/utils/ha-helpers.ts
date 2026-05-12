@@ -43,10 +43,12 @@ export function findDrones(hass: HomeAssistant): Drone[] {
     const s = hass.states[entityId];
     const a = s.attributes;
     // Prefer the full drone_id from tracker attributes (e.g.
-    // "drone-2051FEABPT0000000207") over the slugified entity_id.
+    // "drone-2051FEABPT0000000207") over the slugified entity_id. Callsign
+    // is always the drone_id — the self-reported description is operator
+    // text, not an identifier, and is rendered as a sub-line below.
     const droneId =
       asString(a.drone_id) ?? entityId.replace(DRONE_TRACKER_PREFIX, "").replace(/_position$/, "");
-    const callsign = asString(a.description) ?? droneId;
+    const callsign = droneId;
     out.push({
       entityId,
       callsign,

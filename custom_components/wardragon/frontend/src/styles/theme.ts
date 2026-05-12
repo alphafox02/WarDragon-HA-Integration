@@ -310,9 +310,19 @@ export const copTheme: CSSResult = css`
   .drone-callsign {
     font-weight: 600;
     font-size: 0.95rem;
+    font-family: var(--wd-mono);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    letter-spacing: -0.01em;
+  }
+  .drone-description {
+    font-size: 0.78rem;
+    color: var(--wd-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 1px;
   }
   .drone-meta {
     display: flex;

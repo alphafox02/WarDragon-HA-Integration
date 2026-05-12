@@ -30,11 +30,12 @@ def kit_device_name(kit_id: str) -> str:
 
 
 def drone_device_name(drone: Drone | None, drone_id: str) -> str:
-    if drone is not None and drone.description:
-        return drone.description
-    # Full drone_id (e.g. "drone-2051FEABPT0000000207"). Operators identify
-    # drones by their full Remote ID serial — matches what ATAK shows on
-    # the track callsign and what FAA RID lookups key on.
+    # The full drone_id is the marker label — matches DragonSync's CoT
+    # callsign, the ATAK plugin's track label, and signal_ingest's "alert"
+    # drone IDs like "drone-900FHSS-NETID-...". Self-reported `description`
+    # carries operator-broadcast text but is not an identifier; it's
+    # available as `sensor.<drone>_description` and as a tracker attribute
+    # without being elevated to the device name.
     return drone_id
 
 

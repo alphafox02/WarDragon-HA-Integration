@@ -321,6 +321,9 @@ export class WarDragonCopCard extends LitElement {
         <div class="drone-status" data-state=${state}></div>
         <div class="drone-main">
           <div class="drone-callsign">${d.callsign}</div>
+          ${d.description
+            ? html`<div class="drone-description">${d.description}</div>`
+            : ""}
           <div class="drone-meta">
             ${d.droneClass ? html`<span class="tag" data-class=${d.droneClass}>${d.droneClass}</span>` : ""}
             ${d.protocolFamily ? html`<span class="tag">${d.protocolFamily}</span>` : ""}
