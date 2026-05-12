@@ -42,8 +42,11 @@ export function findDrones(hass: HomeAssistant): Drone[] {
     if (!isMainDroneTracker(entityId)) continue;
     const s = hass.states[entityId];
     const a = s.attributes;
-    const callsign =
-      asString(a.description) ?? entityId.replace(DRONE_TRACKER_PREFIX, "").replace(/_position$/, "");
+    // Prefer the full drone_id from tracker attributes (e.g.
+    // "drone-2051FEABPT0000000207") over the slugified entity_id.
+    const droneId =
+      asString(a.drone_id) ?? entityId.replace(DRONE_TRACKER_PREFIX, "").replace(/_position$/, "");
+    const callsign = asString(a.description) ?? droneId;
     out.push({
       entityId,
       callsign,
@@ -82,7 +85,12 @@ export function findKits(hass: HomeAssistant): Kit[] {
     const baseSlug = entityId
       .replace(KIT_TRACKER_PREFIX, "")
       .replace(/_position$/, "");
-    const kitId = `wardragon-${baseSlug.toUpperCase().replace(/_/g, "")}`;
+    // Prefer the full kit_id from tracker attributes
+    // (e.g. "wardragon-BN95H4CG01058"); fall back to a best-effort
+    // reconstruction from the slugified entity_id for older builds that
+    // didn't expose the attribute.
+    const kitId =
+      asString(a.kit_id) ?? `wardragon-${baseSlug.toUpperCase().replace(/_/g, "")}`;
     const sensorBase = `sensor.wardragon_${baseSlug}`;
     const binBase = `binary_sensor.wardragon_${baseSlug}`;
     // Sensor entity_ids are derived by HA from the entity description's `name=`

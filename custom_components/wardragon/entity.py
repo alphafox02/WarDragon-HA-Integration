@@ -23,15 +23,19 @@ if TYPE_CHECKING:
 
 
 def kit_device_name(kit_id: str) -> str:
-    suffix = kit_id[-8:] if len(kit_id) > 8 else kit_id
-    return f"WarDragon ({suffix})"
+    # Full kit_id (e.g. "wardragon-BN95H4CG01058"). HA's device list shows
+    # the full string; operators identify kits by their complete serial
+    # rather than the last-N-chars tail.
+    return kit_id
 
 
 def drone_device_name(drone: Drone | None, drone_id: str) -> str:
     if drone is not None and drone.description:
         return drone.description
-    suffix = drone_id[-10:] if len(drone_id) > 10 else drone_id
-    return f"Drone {suffix}"
+    # Full drone_id (e.g. "drone-2051FEABPT0000000207"). Operators identify
+    # drones by their full Remote ID serial — matches what ATAK shows on
+    # the track callsign and what FAA RID lookups key on.
+    return drone_id
 
 
 def drone_manufacturer(drone: Drone | None) -> str:

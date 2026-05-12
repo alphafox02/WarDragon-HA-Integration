@@ -144,6 +144,11 @@ class WarDragonDroneDeviceTracker(WarDragonDroneEntity, TrackerEntity):
         if d is None:
             return {}
         attrs: dict[str, Any] = {
+            # Expose the unaltered drone_id (e.g. "drone-2051FEABPT0000000207")
+            # so any consumer — the COP card, automations, more-info dialog —
+            # can read the full original serial rather than a slugified
+            # entity_id or a truncated display name.
+            "drone_id": d.drone_id,
             "altitude": d.alt,
             "height": d.height,
             "speed": d.speed,
@@ -262,6 +267,11 @@ class WarDragonKitDeviceTracker(WarDragonKitEntity, TrackerEntity):
         return {
             kk: vv
             for kk, vv in {
+                # Unaltered kit_id (e.g. "wardragon-BN95H4CG01058") so the
+                # COP card and any consumer can read the full original
+                # identifier rather than reconstruct it from the slugified
+                # entity_id.
+                "kit_id": k.kit_id,
                 "hae": k.hae,
                 "speed_mps": k.speed_mps,
                 "track_deg": k.track_deg,
