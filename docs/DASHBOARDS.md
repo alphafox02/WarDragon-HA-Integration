@@ -96,3 +96,118 @@ For an exercise or after-action review of a specific drone, you sometimes want o
 ```
 
 Replace `<drone_id>` with the actual drone_id from the integration. This view stops auto-updating its entity list (since you're pinning a specific drone), but for incident review that's the point.
+
+---
+
+## Live map ↔ history map toggle
+
+HA's recorder logs every drone / kit position transition automatically. The stock `map` card has an `hours_to_show` option that draws trail lines from that history. Putting a toggle between a "live" map (current positions, no trails) and a "history" map (last N hours of trails) is pure Lovelace YAML — no integration code needed.
+
+Useful when you want to flip back and forth between "where is everything right now" and "where has this drone been."
+
+### Helpers to create first
+
+In Home Assistant: **Settings → Devices & Services → Helpers → Create helper**.
+
+1. **Toggle** — type `Toggle`, name `WarDragon — show drone history`. Resulting entity_id: `input_boolean.wardragon_show_drone_history`.
+2. **Dropdown** — type `Dropdown`, name `WarDragon — history window`, options `1`, `6`, `24`, `72`. Resulting entity_id: `input_select.wardragon_history_window`.
+
+### Dashboard YAML
+
+Drop this into a section in your existing dashboard. It uses [`auto-entities`](https://github.com/thomasloven/lovelace-auto-entities) so new kits and drones populate automatically.
+
+```yaml
+- type: entities
+  entities:
+    - entity: input_boolean.wardragon_show_drone_history
+      name: Show drone history
+    - entity: input_select.wardragon_history_window
+      name: History window (hours)
+
+# LIVE map — shown when the toggle is off
+- type: conditional
+  conditions:
+    - entity: input_boolean.wardragon_show_drone_history
+      state: "off"
+  card:
+    type: custom:auto-entities
+    card:
+      type: map
+      default_zoom: 14
+      hours_to_show: 0
+      aspect_ratio: "16:10"
+    filter:
+      include:
+        - entity_id: "device_tracker.wardragon_*_position"
+        - entity_id: "device_tracker.drone_*_position"
+        - entity_id: "zone.home"
+      exclude:
+        - state: "unavailable"
+        - state: "unknown"
+
+# HISTORY maps — one per supported window. The dropdown picks which
+# conditional card renders. Pure conditional-card switching is needed
+# because the stock map card doesn't accept a templated hours_to_show.
+- type: conditional
+  conditions:
+    - entity: input_boolean.wardragon_show_drone_history
+      state: "on"
+    - entity: input_select.wardragon_history_window
+      state: "1"
+  card:
+    type: custom:auto-entities
+    card: { type: map, default_zoom: 14, hours_to_show: 1, aspect_ratio: "16:10" }
+    filter:
+      include:
+        - entity_id: "device_tracker.wardragon_*_position"
+        - entity_id: "device_tracker.drone_*_position"
+
+- type: conditional
+  conditions:
+    - entity: input_boolean.wardragon_show_drone_history
+      state: "on"
+    - entity: input_select.wardragon_history_window
+      state: "6"
+  card:
+    type: custom:auto-entities
+    card: { type: map, default_zoom: 14, hours_to_show: 6, aspect_ratio: "16:10" }
+    filter:
+      include:
+        - entity_id: "device_tracker.wardragon_*_position"
+        - entity_id: "device_tracker.drone_*_position"
+
+- type: conditional
+  conditions:
+    - entity: input_boolean.wardragon_show_drone_history
+      state: "on"
+    - entity: input_select.wardragon_history_window
+      state: "24"
+  card:
+    type: custom:auto-entities
+    card: { type: map, default_zoom: 14, hours_to_show: 24, aspect_ratio: "16:10" }
+    filter:
+      include:
+        - entity_id: "device_tracker.wardragon_*_position"
+        - entity_id: "device_tracker.drone_*_position"
+
+- type: conditional
+  conditions:
+    - entity: input_boolean.wardragon_show_drone_history
+      state: "on"
+    - entity: input_select.wardragon_history_window
+      state: "72"
+  card:
+    type: custom:auto-entities
+    card: { type: map, default_zoom: 14, hours_to_show: 72, aspect_ratio: "16:10" }
+    filter:
+      include:
+        - entity_id: "device_tracker.wardragon_*_position"
+        - entity_id: "device_tracker.drone_*_position"
+```
+
+### Why this works without integration changes
+
+- Every drone / kit `device_tracker` reports its state automatically as `home`, `not_home`, or a zone name based on its current lat/lon. HA's recorder logs each state transition.
+- `hours_to_show: N` on the `map` card asks HA's history API for that entity's positions over the last `N` hours and draws trail lines connecting them.
+- When a drone goes silent past the integration's inactivity timeout (default 5 min), its tracker flips to `unavailable`. The prior position history is still in the recorder and still plotted by `hours_to_show` — the trail just stops where the live updates stopped. When the drone resumes broadcasting, the trail picks up from the new position.
+- The history window is bounded by HA's `recorder.purge_keep_days` setting (default 10 days). For longer retention, increase that in `configuration.yaml`.
